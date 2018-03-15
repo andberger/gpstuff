@@ -17,7 +17,8 @@ from scipy.spatial.distance import cdist
 #    return K
 
 def kernel_wp(x, y, sigma):
-    return sigma * np.min(x, y);
+    minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v)) # pair-wise distances, size: NxM
+    return sigma * minimum
 
 ## Load data
 ## We subsample the data, which gives us N pairs of (x, y)
