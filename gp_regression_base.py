@@ -16,9 +16,14 @@ from scipy.spatial.distance import cdist
 #    K = _theta * np.exp(-0.5 * D2 * _lambda) # NxM
 #    return K
 
-def kernel_wp(x, y, sigma):
-    minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v)) # pair-wise distances, size: NxM
+def kernel_wp_nonce(x, y, sigma):
+    minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
     return sigma * minimum
+
+def kernel_wp_once(x, y, sigma):
+    dist = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), 'euclidean')
+    minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
+    return sigma * ( (np.power(minimum,3) / 3) + dist*(np.power(minimum,2) / 2) )
 
 ## Load data
 ## We subsample the data, which gives us N pairs of (x, y)
@@ -39,9 +44,9 @@ xs = np.linspace(np.min(x), np.max(x), M)
 sigma2 = (1.0)**2
 
 ## Compute covariance (aka "kernel") matrices
-K = kernel_wp(x, x, sigma2) + sigma2*np.eye(N) 
-Ks = kernel_wp(x, xs, sigma2)
-Kss = kernel_wp(xs, xs, sigma2)
+K = kernel_wp_once(x, x, sigma2) + sigma2*np.eye(N) 
+Ks = kernel_wp_once(x, xs, sigma2)
+Kss = kernel_wp_once(xs, xs, sigma2)
 
  
 ## Compute conditional mean p(y_* | x, y, x_*)
