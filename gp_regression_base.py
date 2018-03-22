@@ -3,18 +3,6 @@ import matplotlib.pyplot as plt
 from scipy.io import loadmat
 from scipy.spatial.distance import cdist
 
-####### HELPER FUNCTIONS #######
-
-# K = kernel(x, y, _lambda, _theta)
-#   Evaluate the squared exponential kernel function with parameters
-#   lambda and theta.
-#
-#   x and y should be NxD and MxD matrices. The resulting
-#   covariance matrix will be of size NxM.
-#def kernel(x, y, _lambda, _theta):
-#    D2 = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), 'sqeuclidean') # pair-wise distances, size: NxM
-#    K = _theta * np.exp(-0.5 * D2 * _lambda) # NxM
-#    return K
 
 def kernel_wp_nonce(x, y, sigma):
     minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
