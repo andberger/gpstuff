@@ -9,7 +9,10 @@ def kernel_wp_nonce(x, y, sigma):
 def kernel_wp_once(x, y, sigma):
     dist = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), 'euclidean')
     minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
-    return sigma * ( (np.power(minimum,3) / 3) + dist*(np.power(minimum,2) / 2) )
+    term1 = np.power(minimum, 3) / 3
+    term2 = np.power(minimum,2) / 2
+    
+    return sigma * (term1 + dist*term2)
 
 def kernel_wp_once2(x, y, sigma):
 
