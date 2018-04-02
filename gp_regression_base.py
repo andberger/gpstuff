@@ -1,13 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
-import kernel_functions as kf
+from scipy.spatial.distance import cdist
+#import kernel_functions as kf
+
+def kernel_wp_nonce_local(x, y, sigma):
+    minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
+    return (sigma**2) * minimum
     
 ## Load data
 ## We subsample the data, which gives us N pairs of (x, y)
 data = loadmat('weather.mat')
 x = np.arange(0, 1000, 20)
 y = data['TMPMAX'][x]
+x = x[0:3]
+y = y[0:3]
 N = len(y);
 
 ## Standardize data to have zero mean and unit variance
@@ -21,21 +28,30 @@ xs = np.linspace(np.min(x), np.max(x), M)
 ## Data is assumed to have variance sigma^2 -- what happens when you change this number? (e.g. 0.1^2)
 sigma2 = (1.0)**2
 
-## Compute covariance (aka "kernel") matrices
-K = kf.kernel_wp_once(x, x, sigma2) + sigma2*np.eye(N) 
-Ks = kf.kernel_wp_once(x, xs, sigma2)
-Kss = kf.kernel_wp_once(xs, xs, sigma2)
+# Hyper parameter for kernel functions, to be optimized with max likelihood.
+hyper_parameter = 1.0
 
+## Compute covariance (aka "kernel") matrices
+K = kernel_wp_nonce_local(x, x, hyper_parameter) + sigma2*np.eye(N) 
+Ks = kernel_wp_nonce_local(x, xs, hyper_parameter)
+Kss = kernel_wp_nonce_local(xs, xs, hyper_parameter)
+    
+def inversion_algo(K):
+    identity = np.eye(len(K))
+    # Gaussian elimination on K
+    
+    # Same Gaussian elimination on identity
  
 ## Compute conditional mean p(y_* | x, y, x_*)
 Kinv = np.linalg.pinv(K)
 mu = Ks.T.dot(Kinv).dot(y);
+mu_test = Ks.T.dot(inversion_algo(K)).dot(y);
 Sigma = Kss - Ks.T.dot(Kinv).dot(Ks);
 
 ## Plot the mean prediction
 plt.figure(1)
 plt.plot(x, y, 'o-', markerfacecolor='k') # raw data
-plt.plot(xs, mu) # mean prediction
+plt.plot(xs, mu_test) # mean prediction
 plt.title('Mean prediction')
 plt.show()
 
