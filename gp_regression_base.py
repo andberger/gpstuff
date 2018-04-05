@@ -5,11 +5,11 @@ from scipy.spatial.distance import cdist
 from itertools import chain
 #import kernel_functions as kf
 
-def kernel_wp_nonce_local(x, y, sigma):
-    minimum = cdist(x.reshape((-1, 1)), y.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
+def kernel_wp_nonce_local(x, xp, y, sigma):
+    minimum = cdist(x.reshape((-1, 1)), xp.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
     return (sigma**2) * minimum
     
-def inversion_algo(K):
+def cleverly_calculate_mu(K, Ks, y):
     #identity = np.eye(len(K))
     
     # Gaussian elimination on K
@@ -20,7 +20,8 @@ def inversion_algo(K):
     
     #return identity
     
-    return np.linalg.pinv(K)
+    # Cheat by not being clever
+    return Ks.T.dot(np.linalg.pinv(K)).dot(y);
 
 def gaussian_elimination(A):
     h = 1
@@ -28,7 +29,7 @@ def gaussian_elimination(A):
     m = len(A)
     n = len(A)
     while h <= m and k <= n:
-        i_max = max(list(chain.from_iterable((i, abs(A[i,k-1])) for i in xrange(1, m))))
+        i_max = max(list(chain.from_iterable((i, abs(A[i,k-1])) for i in range(1, m))))
         if A[i_max, k-1] == 0:
             k = k+1
         else:
@@ -44,15 +45,16 @@ def gaussian_elimination(A):
 def swap_rows(i1, i2, A):
     A[i1], A[i2] = A[i2], A[i1]
             
-tt = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
-gaussian_elimination(tt)
+#tt = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
+#gaussian_elimination(tt)
+
 ## Load data
 ## We subsample the data, which gives us N pairs of (x, y)
 data = loadmat('weather.mat')
 x = np.arange(0, 1000, 20)
 y = data['TMPMAX'][x]
-x = x[0:3]
-y = y[0:3]
+x = x[0:8]
+y = y[0:8]
 N = len(y);
 
 ## Standardize data to have zero mean and unit variance
@@ -60,7 +62,7 @@ x = (x - np.mean(x)) / np.std(x)
 y = (y - np.mean(y)) / np.std(y)
 
 ## We want to predict values at x_* (denoted xs in the code)
-M = 1000
+M = 9
 xs = np.linspace(np.min(x), np.max(x), M)
 
 ## Data is assumed to have variance sigma^2 -- what happens when you change this number? (e.g. 0.1^2)
@@ -70,14 +72,15 @@ sigma2 = (1.0)**2
 hyper_parameter = 1.0
 
 ## Compute covariance (aka "kernel") matrices
-K = kernel_wp_nonce_local(x, x, hyper_parameter) + sigma2*np.eye(N)
-Ks = kernel_wp_nonce_local(x, xs, hyper_parameter)
-Kss = kernel_wp_nonce_local(xs, xs, hyper_parameter)
+kernel = kernel_wp_nonce_local;
+K = kernel(x, x, y, hyper_parameter) + sigma2*np.eye(N)
+Ks = kernel(x, xs, y, hyper_parameter)
+Kss = kernel(xs, xs, y, hyper_parameter)
  
 ## Compute conditional mean p(y_* | x, y, x_*)
 Kinv = np.linalg.pinv(K)
 mu = Ks.T.dot(Kinv).dot(y);
-mu_test = Ks.T.dot(inversion_algo(K)).dot(y);
+mu_test = cleverly_calculate_mu(K, Ks, y);
 Sigma = Kss - Ks.T.dot(Kinv).dot(Ks);
 
 ## Plot the mean prediction
