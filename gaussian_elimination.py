@@ -33,7 +33,7 @@ def swap_rows(i, j, A):
     
 def row_echelon_form_to_identity(A, m):
     n = m-1
-    for i in range(0,m):
+    for i in range(0, m):
         if n-i == n:
             A[n-i] = A[n-i] * 1/A[n-i][n-i]
         elif n-i == 0:
@@ -43,21 +43,30 @@ def row_echelon_form_to_identity(A, m):
                 else:
                     A[n-i] = A[n-i] * 1/A[n-i][n-i + n-j]
         else:
-            for k in range(1, n):
-                A[n-i] = A[n-i] - A[n-i + k] * A[n-i][n-i + k]
-                A[n-i] = A[n-i] * 1/A[n-i][n-i]
+            for k in range(0, i):
+                A[n-i] = A[n-i] - A[n-i + k+1] * A[n-i][n-i + k+1]
+            A[n-i] = A[n-i] * 1/A[n-i][n-i]
         
     
     
 
-
+#3x3
 A = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 10.0]])
+#4x4
+A = np.array([[1.0, 2.0, 3.0, 6.0], [4.0, 5.0, 6.0, 13.0], [7.0, 8.0, 10.0, 17.0], 
+              [9.0, 10.0, 11.0, 19.0]])
 A_I = np.hstack((A,np.eye(len(A))))
 print(A)
 print(A_I)
 B = np.array(A)
 B_I = np.array(A_I)
+B_I_rc_count = np.shape(B_I)[0]
 gaussian_elimination(B, 3, 3)
-gaussian_elimination(B_I, 3, 3)
+gaussian_elimination(B_I, B_I_rc_count, B_I_rc_count)
+row_echelon_form_to_identity(B_I, B_I_rc_count)
 print(B)
 print(B_I)
+B_I_final = B_I[:, B_I_rc_count:B_I_rc_count*2]
+print("------------------------------")
+print(B_I_final)
+print(np.matmul(A, B_I_final))
