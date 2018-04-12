@@ -24,13 +24,21 @@ def cleverly_calculate_mu(K, Ks, y):
     return Ks.T.dot(np.linalg.pinv(K)).dot(y);
 
 def gaussian_elimination(A):
-    h = 1
-    k = 1
-    m = len(A)
+    eps = 0.00000000000000001;
+    h = 0
+    k = 0
+    m = len(A[0])
     n = len(A)
     while h <= m and k <= n:
-        i_max = max(list(chain.from_iterable((i, abs(A[i,k-1])) for i in range(1, m))))
-        if A[i_max, k-1] == 0:
+        i_max = h
+        v_max = 0
+        for i in range(h, m):
+            v = abs(A[i, k])
+            if v > v_max:
+                i_max = i
+                v_max = v
+        
+        if A[i_max, k] <= eps:
             k = k+1
         else:
             swap_rows(h, i_max, A)

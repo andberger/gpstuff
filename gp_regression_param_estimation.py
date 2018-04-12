@@ -4,6 +4,8 @@ from scipy.io import loadmat
 from scipy.spatial.distance import cdist
 import kernel_functions as kf
 
+
+#%%
 def kernel_wp_nonce_local(x, xp, y, sigma):
     minimum = cdist(x.reshape((-1, 1)), xp.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
     return (sigma**2) * minimum
@@ -26,7 +28,7 @@ M = 1000
 xs = np.linspace(np.min(x), np.max(x), M)
 
 ## Data is assumed to have variance sigma^2 -- what happens when you change this number? (e.g. 0.1^2)
-sigma2 = (1.0)**2
+sigma2 = (0.0)**2
 
 # Hyper parameter for kernel functions, to be optimized with max likelihood.
 rho = 1.0
@@ -59,6 +61,7 @@ for s in range(S):
 plt.title('Samples')
 plt.show()
 
+#%%
 ## Evaluate log-likelihood for a range of lambda's
 Q = 1000
 possible_rhos = np.linspace(1, 10, Q)
@@ -77,4 +80,27 @@ plt.plot(possible_rhos[idx], loglikelihood[idx], '*')
 plt.title('Log-likelihood for \rho');
 plt.xlabel('\rho')
 plt.show()
+print("Optimal rho: {}".format(rho_opt))
+
+
+#%%
+
+plt.subplot(3, 3, 1)
+plt.plot(Kinv[1,:])
+plt.subplot(3, 3, 9)
+plt.plot(Kinv[2,:])
+
+#%%
+
+#%%
+
+
+for i in range(1,10):
+    plt.plot(Kinv[i,:])
+    plt.title("Row {} of K^-1".format(i))
+    plt.show()
+    
+#%%
+    
+    
 

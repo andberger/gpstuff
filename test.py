@@ -93,3 +93,5 @@ print(np.round(A, decimals=2))
 print(np.round(B, decimals=2))
 print(np.round(C, decimals=10))
 
+#%%
+
