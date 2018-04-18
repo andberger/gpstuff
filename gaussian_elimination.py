@@ -1,11 +1,13 @@
 import numpy as np
 
-def gaussian_elimination(A, m, n):
+def gaussian_elimination(A, m, n=0):
+    if(n == 0):
+        n = m
     eps = 0.00000000000000001;
     h = 0
     k = 0
     while h < m and k < n:
-        print(A, h, k)
+        #print(A, h, k)
         i_max = h
         v_max = 0
         for i in range(h, m):
@@ -18,13 +20,13 @@ def gaussian_elimination(A, m, n):
             k = k+1
         else:
             swap_rows(h, i_max, A)
-            print("After swap\n", A)
+            #print("After swap\n", A)
             for i in range(h+1, m):
                 f = A[i, k] / A[h, k]
-                print("f = {}/{} = {}".format(A[i, k], A[h, k], f))
+                #print("f = {}/{} = {}".format(A[i, k], A[h, k], f))
                 A[i, k] = 0.0
                 A[i, (k+1):] = A[i, (k+1):] - A[h, (k+1):]*f
-                print("After subtraction\n", A)
+                #print("After subtraction\n", A)
             h = h+1
             k = k+1
             
@@ -48,6 +50,20 @@ def row_echelon_form_to_identity(A, m):
             A[n-i] = A[n-i] * 1/A[n-i][n-i]
         
     
+def get_inverse(A):
+    """
+    A assumed square
+    """
+    A_I = np.hstack((A, np.eye(len(A))))
+    gaussian_elimination(A_I, len(A))
+    row_echelon_form_to_identity(A_I, len(A))
+    return np.array(A_I[:, len(A):len(A)*2])
+
+    
+def is_inverse(A, A_inv):
+    eps = 0.00001
+    diff =  np.matmul(A, A_inv) - np.eye(len(A))
+    return np.sum(diff**2) < eps
     
 
 #3x3
@@ -68,5 +84,5 @@ print(B)
 print(B_I)
 B_I_final = B_I[:, B_I_rc_count:B_I_rc_count*2]
 print("------------------------------")
-print(B_I_final)
-print(np.matmul(A, B_I_final))
+print(np.round(B_I_final, decimals=2))
+print(np.round(np.matmul(A, B_I_final), decimals=2))
