@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.io import loadmat
 from scipy.spatial.distance import cdist
 from itertools import chain
+import gaussian_elimination as ge
 #import kernel_functions as kf
 
 def kernel_wp_nonce_local(x, xp, y, sigma):
@@ -23,46 +24,14 @@ def cleverly_calculate_mu(K, Ks, y):
     # Cheat by not being clever
     return Ks.T.dot(np.linalg.pinv(K)).dot(y);
 
-def gaussian_elimination(A):
-    eps = 0.00000000000000001;
-    h = 0
-    k = 0
-    m = len(A[0])
-    n = len(A)
-    while h <= m and k <= n:
-        i_max = h
-        v_max = 0
-        for i in range(h, m):
-            v = abs(A[i, k])
-            if v > v_max:
-                i_max = i
-                v_max = v
-        
-        if A[i_max, k] <= eps:
-            k = k+1
-        else:
-            swap_rows(h, i_max, A)
-            for i in range(h+1, m):
-                f = A[i, k] / A[h, k]
-                A[i, k] = 0
-                for j in range(k+1,n):
-                    A[i, j] = A[i, j] - A[k, j] * f
-            h = h+1
-            k = k+1
             
-def swap_rows(i1, i2, A):
-    A[i1], A[i2] = A[i2], A[i1]
-            
-#tt = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
-#gaussian_elimination(tt)
-
 ## Load data
 ## We subsample the data, which gives us N pairs of (x, y)
 data = loadmat('weather.mat')
 x = np.arange(0, 1000, 20)
 y = data['TMPMAX'][x]
-x = x[0:8]
-y = y[0:8]
+x = x
+y = y
 N = len(y);
 
 ## Standardize data to have zero mean and unit variance
@@ -86,7 +55,8 @@ Ks = kernel(x, xs, y, hyper_parameter)
 Kss = kernel(xs, xs, y, hyper_parameter)
  
 ## Compute conditional mean p(y_* | x, y, x_*)
-Kinv = np.linalg.pinv(K)
+#Kinv = np.linalg.pinv(K)
+Kinv = ge.get_inverse(K)
 mu = Ks.T.dot(Kinv).dot(y);
 mu_test = cleverly_calculate_mu(K, Ks, y);
 Sigma = Kss - Ks.T.dot(Kinv).dot(Ks);
