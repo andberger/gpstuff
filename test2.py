@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-
+import numpy as np
+from random import random
 import matplotlib.pyplot as plt
+from scipy.spatial.distance import cdist
+
+def kernel_wp_nonce_local(x, xp, y, sigma):
+    minimum = cdist(x.reshape((-1, 1)), xp.reshape((-1, 1)), lambda u, v: np.fmin(u,v))
+    return (sigma**2) * minimum
+
 
 d = np.sort(np.random.rand((5)))
 e = np.sort(np.random.rand((7)))
-res = np.round(kernel_wp_nonce_local(d, e, _, 1), decimals=2)
+res = np.round(kernel_wp_nonce_local(d, e, 0, 1), decimals=2)
 
 print(np.round(d, decimals=2))
 print(np.round(e, decimals=2))
@@ -17,7 +24,7 @@ plt.show()
 
 
 
-res = np.round(kernel_wp_nonce_local(d, d, _, 1), decimals=2)
+res = np.round(kernel_wp_nonce_local(d, d, 0, 1), decimals=2)
 print(res)
 plt.matshow(res)
 
@@ -110,7 +117,7 @@ y = np.random.rand((5))
 #invert_and_dot(m, y)
 
 
-K = kernel_wp_nonce_local(m, m, _, 1)
+K = kernel_wp_nonce_local(m, m, 0, 1)
 res1 = K.dot(y)
 res2 = invert_and_dot(m, y)
 

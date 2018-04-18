@@ -17,6 +17,7 @@ df = pd.read_excel('datasets/data_akbilgic.xlsx')
 #data = loadmat('weather.mat')
 N = len(df['USD BASED'].as_matrix())-1
 x = np.arange(0, N, 5)
+x = np.random.randint(536, size=(108,))
 y = df['USD BASED'].as_matrix()[1:][x]
 N = len(y)
 

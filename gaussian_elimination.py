@@ -16,7 +16,7 @@ def gaussian_elimination(A, m, n=0):
                 i_max = i
                 v_max = v
         
-        if A[i_max, k] <= eps:
+        if abs(A[i_max, k]) <= eps:
             k = k+1
         else:
             swap_rows(h, i_max, A)
@@ -64,25 +64,8 @@ def is_inverse(A, A_inv):
     eps = 0.00001
     diff =  np.matmul(A, A_inv) - np.eye(len(A))
     return np.sum(diff**2) < eps
-    
 
-#3x3
-A = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 10.0]])
-#4x4
-A = np.array([[1.0, 2.0, 3.0, 6.0], [4.0, 5.0, 6.0, 13.0], [7.0, 8.0, 10.0, 17.0], 
-              [9.0, 10.0, 11.0, 19.0]])
-A_I = np.hstack((A,np.eye(len(A))))
-print(A)
-print(A_I)
-B = np.array(A)
-B_I = np.array(A_I)
-B_I_rc_count = np.shape(B_I)[0]
-gaussian_elimination(B, 3, 3)
-gaussian_elimination(B_I, B_I_rc_count, B_I_rc_count)
-row_echelon_form_to_identity(B_I, B_I_rc_count)
-print(B)
-print(B_I)
-B_I_final = B_I[:, B_I_rc_count:B_I_rc_count*2]
-print("------------------------------")
-print(np.round(B_I_final, decimals=2))
-print(np.round(np.matmul(A, B_I_final), decimals=2))
+
+
+
+
