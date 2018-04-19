@@ -1,4 +1,7 @@
 import numpy as np
+import kernel_functions as kf
+import time
+import matplotlib.pyplot as plt
 
 def to_lower_echelon_form(A, m):
     for i in range(0, m-1):
@@ -83,11 +86,90 @@ def is_inverse(A, A_inv):
 
 #%%
    
-import kernel_functions as kf
+#
+#x = np.arange(20, 1020, 20)
+#x = (x - np.mean(x)) / np.std(x)
+#K = kf.kernel_wp_nonce(x, x, 1.0)
+#Kinv = get_inverse(K)
+#print(is_inverse(K, Kinv))
 
-x = np.arange(20, 1020, 20)
-x = (x - np.mean(x)) / np.std(x)
-K = kf.kernel_wp_nonce(x, x, 1.0)
-Kinv = get_inverse(K)
+
+
+#%%
+K_cached = None
+K_cached_size = 0
+def test(n=10, inverse_function=get_inverse):
+    global K_cached_size
+    global K_cached
+    if(K_cached_size == n):
+        K = K_cached
+    else:
+        x = np.arange(0, n*10, 10)
+        x = (x-np.mean(x)) / np.std(x)
+        #print(x)
+        K = kf.kernel_wp_nonce(x, x, 1.0)
+        K_cached_size = n
+        K_cached = K
+        
+    runs = 0 
+    start_time = time.time()
+    while True:
+        runs += 1
+        Kinv = inverse_function(K)
+        if time.time() - start_time > 2:
+            break
+    
+    time_per_run = (time.time()-start_time)/runs
+    return time_per_run
+
+
+ns2= [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+times1 = [0.00024018999937059328,
+ 0.001172351389948676,
+ 0.0028016417176573425,
+ 0.008094185783017066,
+ 0.020362292877351394,
+ 0.06063500317660245,
+ 0.41081376870473224,
+ 1.360371470451355,
+ 5.861602067947388]
+
+times2 = [0.00018669940724928648,
+ 0.0008185730877585694,
+ 0.0024366500752271312,
+ 0.020629986045286826,
+ 0.09150949391451749,
+ 0.5706148743629456,
+ 13.515231847763062,
+ 168.7982976436615]
+times = []
+
+
+ns = [10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 9000]
+
+plt.figure()
+
+our_time = []
+pinv_time = []
+for n in ns:
+    print("Starting test for n={}".format(n))
+    t = test(n=n)
+    our_time.append(t)
+    t2 = test(n=n, inverse_function=np.linalg.pinv)
+    pinv_time.append(t2)
+    
+    plt.plot(ns[:len(our_time)], our_time, label='get_inverse')
+    plt.plot(ns[:len(pinv_time)], pinv_time, label='pinv')
+    plt.legend()
+    plt.yscale('log', basey=2)
+    plt.xscale('log', basex=2)
+    plt.show()
+
+    print("........ test for n={} took {} per run".format(n, t))
+    
+
+#%%
+
+
 
 
