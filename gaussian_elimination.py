@@ -1,5 +1,10 @@
 import numpy as np
 
+def to_lower_echelon_form(A, m):
+    for i in range(0, m-1):
+        A[i] = A[i+1][i+1] * A[i] - A[i][i+1] * A[i+1]
+    
+
 def gaussian_elimination(A, m, n=0):
     if(n == 0):
         n = m
@@ -33,7 +38,7 @@ def gaussian_elimination(A, m, n=0):
 def swap_rows(i, j, A):
     A[[i, j]] = A[[j, i]]
     
-def row_echelon_form_to_identity(A, m):
+def upper_row_echelon_form_to_identity(A, m):
     n = m-1
     for i in range(0, m):
         if n-i == n:
@@ -48,6 +53,16 @@ def row_echelon_form_to_identity(A, m):
             for k in range(0, i):
                 A[n-i] = A[n-i] - A[n-i + k+1] * A[n-i][n-i + k+1]
             A[n-i] = A[n-i] * 1/A[n-i][n-i]
+            
+def lower_row_echelon_form_to_identity(A, m):
+    x = 1/A[-1, 0] * A[-2,0]
+    for i in reversed(range(1, m)):
+        if i == m-1:
+            A[i] = A[i] - 1/x * A[i-1]
+        else:
+            A[i] = A[i] - A[i-1]
+        A[i] = 1/A[i,i] * A[i]
+    A[0] = 1/A[0,0] * A[0]
         
     
 def get_inverse(A):
@@ -55,8 +70,8 @@ def get_inverse(A):
     A assumed square
     """
     A_I = np.hstack((A, np.eye(len(A))))
-    gaussian_elimination(A_I, len(A))
-    row_echelon_form_to_identity(A_I, len(A))
+    to_lower_echelon_form(A_I, len(A))
+    lower_row_echelon_form_to_identity(A_I, len(A))
     return np.array(A_I[:, len(A):len(A)*2])
 
     
@@ -66,6 +81,13 @@ def is_inverse(A, A_inv):
     return np.sum(diff**2) < eps
 
 
+#%%
+   
+import kernel_functions as kf
 
+x = np.arange(20, 1020, 20)
+x = (x - np.mean(x)) / np.std(x)
+K = kf.kernel_wp_nonce(x, x, 1.0)
+Kinv = get_inverse(K)
 
 
