@@ -90,4 +90,48 @@ x = (x - np.mean(x)) / np.std(x)
 K = kf.kernel_wp_nonce(x, x, 1.0)
 Kinv = get_inverse(K)
 
+#%%
+import numpy as np
+import kernel_functions as kf
+import matplotlib.pyplot as plt
+
+def once_inversion(A):
+    ''' A is a once integrated wiener process covariance matrix (linspaced) '''
+    m = len(A)
+    for i in range(m-2):
+        alpha1 = A[i, i+1] - A[i, i]
+        alpha2 = A[i+1, i+2] - A[i+1, i+1]
+        A[i] = A[i] - (alpha1/alpha2) * A[i+1]
+    for i in range(m-2):
+        over = A[i, i+1]
+        under = A[i+1, i+2]
+        A[i] = A[i] - (over/under) * A[i+1]
+        
+x = np.arange(20, 20*11, 20)
+# = np.array(list(sorted((50*np.random.random((10))))))
+x = (x - np.mean(x)) / np.std(x)
+K = kf.kernel_wp_once(x, x, 1.0)
+print(K)
+once_inversion(K)
+
+
+plt.imshow(K);
+plt.colorbar()
+plt.show()
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
