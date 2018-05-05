@@ -174,8 +174,10 @@ for n in ns:
 
 #%%
 import numpy as np
-import kernel_functions as kf
 import matplotlib.pyplot as plt
+
+float_formatter = lambda x: "%.2f" % x
+np.set_printoptions(formatter={'float_kind':float_formatter})
 
 def once_inversion(A):
     ''' A is a once integrated wiener process covariance matrix (linspaced) '''
@@ -190,18 +192,56 @@ def once_inversion(A):
         A[i] = A[i] - (over/under) * A[i+1]
         
 x = np.arange(20, 20*11, 20)
-# = np.array(list(sorted((50*np.random.random((10))))))
+#x = np.array(list(sorted((50*np.random.random((50))))))
 x = (x - np.mean(x)) / np.std(x)
 K = kf.kernel_wp_once(x, x, 1.0)
-print(K)
-once_inversion(K)
-
+#print(K)
 
 plt.imshow(K);
 plt.colorbar()
 plt.show()
 
+once_inversion(K)
+print(K)
+
+plt.imshow(K);
+plt.colorbar()
+plt.show()
+
+for i in range(10):
+    plt.plot(K[i], label=i)
+plt.legend()
+plt.show()
+
+
+#%%
+
+def swap_rows(i, j, A):
+    A[[i, j]] = A[[j, i]]
+
+def once_inversion_success(A):
+    '''A is a once integrated wiener process covariance matrix (linspaced) and 0<a<b<c... where a=a, b=2a, c=3a... '''
+    m = len(A)
+    for i in range(m-1):
+        A[i] = A[i] - A[i+1]
     
+    for i in range(m-1):
+        A[i] = A[i] - A[i+1]
+    
+    A[m-2] = A[m-2] - (A[m-2, 0] / A[m-1, 0]) * A[m-1] 
+    A[m-1] = A[m-1] - (A[m-1, m-1] / A[m-2, m-1]) * A[m-2]
+    
+    for i in range(1, m-1):
+        A[m-2] = A[m-2] - (A[m-2, i] / A[i-1, i]) * A[i-1]
+        A[m-1] = A[m-1] - (A[m-1, i] / A[i-1, i]) * A[i-1]
+    
+    for i in reversed(range(0, m-1)):
+        swap_rows(i, i+1, A)
+        
+
+K = np.array([[2.0,5.0,8.0,11.0], [5.0,4.0,7.0,10.0], [8.0,7.0,6.0,9.0], [11.0,10.0,9.0,8.0]])  
+once_inversion_success(K)
+print(np.round(K, decimals=2))
 
 
 
