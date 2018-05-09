@@ -58,14 +58,23 @@ def upper_row_echelon_form_to_identity(A, m):
             A[n-i] = A[n-i] * 1/A[n-i][n-i]
             
 def lower_row_echelon_form_to_identity(A, m):
-    x = 1/A[-1, 0] * A[-2,0]
+    for i in range(m-1):
+        factor = A[i, i] / A[m-1, i]
+        A[i] = (1/factor) * A[i] 
     for i in reversed(range(1, m)):
-        if i == m-1:
-            A[i] = A[i] - 1/x * A[i-1]
-        else:
-            A[i] = A[i] - A[i-1]
+        A[i] = A[i] - A[i-1]
+    for i in range(m):
         A[i] = 1/A[i,i] * A[i]
-    A[0] = 1/A[0,0] * A[0]
+    
+#def lower_row_echelon_form_to_identity(A, m):
+#    for i in reversed(range(1, m)):
+#        if i == m-1:
+#            A[i] = A[i] - 1/x * A[i-1]
+#        else:
+#            A[i] = A[i] - A[i-1]
+#        A[i] = 1/A[i,i] * A[i]
+#        
+#    A[0] = 1/A[0,0] * A[0]
         
     
 def get_inverse(A):
@@ -86,13 +95,28 @@ def is_inverse(A, A_inv):
 
 #%%
    
-#
-#x = np.arange(20, 1020, 20)
-#x = (x - np.mean(x)) / np.std(x)
-#K = kf.kernel_wp_nonce(x, x, 1.0)
-#Kinv = get_inverse(K)
-#print(is_inverse(K, Kinv))
 
+#x = np.arange(20, 1020, 20)
+x = np.array(list(sorted((50*np.random.random((50))))))
+
+K = kf.kernel_wp_nonce(x, x, 1.0)
+Kinv = get_inverse(K)
+print(is_inverse(K, Kinv))
+
+
+#%%
+
+x_ls = np.arange(20, 1020, 20)
+x_rnd = np.array(list(sorted((50*np.random.random((50))))))
+
+K_ls = kf.kernel_wp_nonce(x_ls, x_ls, 1.0)
+K_rnd = kf.kernel_wp_nonce(x_rnd, x_rnd, 1.0)
+
+K_ls_inv = get_inverse(K_ls)
+K_rnd_inv = get_inverse(K_rnd)
+
+print(is_inverse(K_ls, K_ls_inv))
+print(is_inverse(K_rnd, K_rnd_inv))
 
 
 #%%
