@@ -299,14 +299,53 @@ def once_inversion_success(A):
         
     
         
+      
+def once_inversion_success_complete(A):
+    '''A is a once integrated wiener process covariance matrix (linspaced) and 0<a<b<c... where a=a, b=2a, c=3a... '''
+    m = len(A)
+    
+    for i in range(m-1):
+        A[i] = A[i] - A[i+1]
+
+    for i in range(m-1):
+        A[i] = A[i] - A[i+1]
+
+    A[m-2] = A[m-2] - (A[m-2, 0] / A[m-1, 0]) * A[m-1] 
+    A[m-1] = A[m-1] - (A[m-1, m-1] / A[m-2, m-1]) * A[m-2]
+    
+    for i in range(1, m-1):
+        A[m-2] = A[m-2] - (A[m-2, i] / A[i-1, i]) * A[i-1]
+        A[m-1] = A[m-1] - (A[m-1, i] / A[i-1, i]) * A[i-1]
+        
+    for i in reversed(range(0, m-1)):
+        swap_rows(i, i+1, A)
+    
+    for i in range(m):
+        A[i] = (1/A[i,i]) * A[i]
+    
+    for i in range(m-1):
+        A[i] = A[i] - A[i+1]
+    
+    for i in range(m-1):
+        A[i] = A[i] - A[i+1]
+        
+    for i in reversed(range(1, m-2)):
+        A[0] = A[0] - (A[0, i+2]/A[i, i+2]) * A[i]
+    
+    for i in reversed(range(1, m-1)):
+        A[i] = A[i] - (A[i, i+1]/A[i+1, i+1]) * A[i+1]
+        A[i-1] = A[i-1] - (A[i-1, i+1]/A[i+1, i+1]) * A[i+1]
+    A[0] = A[0] - (A[0, 1]/A[1, 1]) * A[1]
+        
+        
 
 #K = np.array([[2.0,5.0,8.0,11.0], [5.0,4.0,7.0,10.0], [8.0,7.0,6.0,9.0], [11.0,10.0,9.0,8.0]])
 
-x = np.arange(20, 20*21, 20)
+x = np.arange(20, 20*18, 20)
 x = (x - np.mean(x)) / np.std(x)
 K = kf.kernel_wp_once(x, x, 1.0)
 
-once_inversion_success(K)
+once_inversion_success_complete(K)
 
 print(np.round(K, decimals=3))
 K[K<-10] = -10
