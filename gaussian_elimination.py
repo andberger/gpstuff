@@ -66,15 +66,7 @@ def lower_row_echelon_form_to_identity(A, m):
     for i in range(m):
         A[i] = 1/A[i,i] * A[i]
     
-#def lower_row_echelon_form_to_identity(A, m):
-#    for i in reversed(range(1, m)):
-#        if i == m-1:
-#            A[i] = A[i] - 1/x * A[i-1]
-#        else:
-#            A[i] = A[i] - A[i-1]
-#        A[i] = 1/A[i,i] * A[i]
-#        
-#    A[0] = 1/A[0,0] * A[0]
+
         
     
 def get_inverse(A):
@@ -242,6 +234,15 @@ plt.show()
 
 def swap_rows(i, j, A):
     A[[i, j]] = A[[j, i]]
+    
+def explore(A, step):
+    print("Step {}".format(step))
+    B = A.copy()
+    B[B<-10] = -10
+    B[B>10] = 10
+    plt.imshow(B)
+    plt.colorbar()
+    plt.show()
 
 def once_inversion_success(A):
     '''A is a once integrated wiener process covariance matrix (linspaced) and 0<a<b<c... where a=a, b=2a, c=3a... '''
@@ -249,33 +250,51 @@ def once_inversion_success(A):
     
     for i in range(m-1):
         A[i] = A[i] - A[i+1]
+    
+    explore(A, 1)
 
     for i in range(m-1):
         A[i] = A[i] - A[i+1]
-
+        
+    explore(A, 2)
+    
     A[m-2] = A[m-2] - (A[m-2, 0] / A[m-1, 0]) * A[m-1] 
     A[m-1] = A[m-1] - (A[m-1, m-1] / A[m-2, m-1]) * A[m-2]
     
+    explore(A, 3)
+    #A = A*1000
+    
     for i in range(1, m-1):
+        print(A[i-1, i])
         A[m-2] = A[m-2] - (A[m-2, i] / A[i-1, i]) * A[i-1]
         A[m-1] = A[m-1] - (A[m-1, i] / A[i-1, i]) * A[i-1]
         
+    explore(A, 4)
+    
     for i in reversed(range(0, m-1)):
         swap_rows(i, i+1, A)
+    explore(A, 5)
     
     for i in range(m):
         A[i] = (1/A[i,i]) * A[i]
-    
-    for i in range(m-1):
-        A[i] = A[i] - A[i+1]
+        
+    explore(A, 6)
     
     for i in range(m-1):
         A[i] = A[i] - A[i+1]
         
+    explore(A, 7)
+    
+    for i in range(m-1):
+        A[i] = A[i] - A[i+1]
+        
+    explore(A, 8)    
+    
     for i in reversed(range(1, m-2)):
-        print(A[0, i+2], A[i, i+2], (A[0, i+2]/A[i, i+2]))
+        #print(A[0, i+2], A[i, i+2], (A[0, i+2]/A[i, i+2]))
         A[0] = A[0] - (A[0, i+2]/A[i, i+2]) * A[i]
         
+    explore(A, 9)
     
         
     
@@ -324,7 +343,7 @@ def once_inversion_success_complete(A):
 
 x = np.arange(20, 20*18, 20)
 x = (x - np.mean(x)) / np.std(x)
-K = kf.kernel_wp_once(x, x, 1.0)     
+K = kf.kernel_wp_once(x, x, 1.0)
 
 once_inversion_success_complete(K)
 
