@@ -31,4 +31,4 @@ def kernel_wp_thrice(x, y, sigma):
     term2 = np.power(minimum, 4)
     term3 = np.power(minimum, 2)
     
-    return (sigma**2) * (term1 + (dist*term2)/720 * (5*np.power(maximum, 2) + 2*x*y + 3*term3))
+    return (sigma**2) * ((term1 + ((dist*term2)/720)) * (5*np.power(maximum, 2) + 2*x*y + 3*term3))
