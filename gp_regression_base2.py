@@ -135,15 +135,17 @@ samples = np.random.multivariate_normal(mu.reshape(-1), Sigma, S) # SxM
 #for s in range(S):
 #    plt.plot(xs, samples[s])
 
-a = (mu.reshape(-1)+Sigma.diagonal()+ymean)*ystdev
-b = (mu.reshape(-1)-Sigma.diagonal()+ymean)*ystdev
+plt.xlabel('Time')
+plt.ylabel('Temperature')
+a = mu.reshape(-1)+Sigma.diagonal()
+b = mu.reshape(-1)-Sigma.diagonal()
 #plt.plot(xs, a, 'b-')
-plt.plot((xs+xmean)*xstdev, (mu+ymean)*ystdev, 'k-')
+plt.plot(xs, mu, 'k-')
 #plt.plot(xs, b, 'b-')
 
-ax.fill_between((xs+xmean)*xstdev, a, b, facecolor='0.8')
+ax.fill_between(xs, a, b, facecolor='0.8')
 
-plt.plot(xdenorm, ydenorm, 'xk') # raw data
+plt.plot(x, y, 'xk') # raw data
 
 plt.title('Conditional mean and variance')
 plt.show()
